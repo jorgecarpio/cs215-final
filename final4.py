@@ -51,16 +51,16 @@ def find_best_flights(flights, origin, destination):
         node1 = flight[1]
         node2 = flight[2]
         details = {}
-        details[flight[5]] = (flight[3], flight[4], flight[0])
+        details[flight[0]] = (flight[3], flight[4], flight[5])
         make_link(G, node1, node2, details)
-
+    embed()
 
     def add_item(heap, mapping, key, value):
-    if key in mapping:
+      if key in mapping:
         trash = mapping.pop(key)
-    entry = [value, key]
-    mapping[key] = entry
-    heapq.heappush(heap, entry)
+      entry = [value, key]
+      mapping[key] = entry
+      heapq.heappush(heap, entry)
     
     def pop_item(heap, mapping):
         while heap:
