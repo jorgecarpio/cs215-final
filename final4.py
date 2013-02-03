@@ -27,65 +27,66 @@
 #
 import heapq
 from collections import deque
+from IPython import embed
 
 def find_best_flights(flights, origin, destination):
-     best_flights = []
-     # your code here
+    best_flights = []
+    # your code here
 
-     # best data structure for our graph should look like
-     # {'origincity':{'destination': {30: ('7:17', '8:32', 883)}}} 
-     # where destination value is dict of cost key to value of depart, arrive, flight #
+    # best data structure for our graph should look like
+    # {'origincity':{'destination': {883: ('7:17', '8:32', 30)}}} 
+    # where destination value is dict of flight# key to value of cost, depart, arrive
+    
+    def make_link(G, node1, node2, details):
+        if node1 not in G:
+            G[node1] = {}
+        if node2 in G[node1]:
+            G[node1][node2].update(details)
+        else:
+            (G[node1])[node2] = details
+        return G
 
-     # make_link needs to be modified
-     # def make_link(G, node1, node2, weight=1):
-     #     if node1 not in G:
-     #         G[node1] = {}
-     #     (G[node1])[node2] = weight
-     #     if node2 not in G:
-     #         G[node2] = {}
-     #     (G[node2])[node1] = weight
-     #     return G
-     
-     REMOVED = -1                    # placeholder for a removed task
+    G = {}
+    for flight in flights:
+        node1 = flight[1]
+        node2 = flight[2]
+        details = {}
+        details[flight[5]] = (flight[3], flight[4], flight[0])
+        make_link(G, node1, node2, details)
 
-     def add_item(pq, entry_finder, key, value):
-         if key in entry_finder:
-             remove_item(pq, entry_finder, key)
-         entry = [value, key]
-         entry_finder[key] = entry
-         heapq.heappush(pq, entry)
 
-     def remove_item(pq, entry_finder, key):
-         entry = entry_finder.pop(key)
-         entry[-1] = REMOVED
-         return entry[0], key
+    def add_item(heap, mapping, key, value):
+    if key in mapping:
+        trash = mapping.pop(key)
+    entry = [value, key]
+    mapping[key] = entry
+    heapq.heappush(heap, entry)
+    
+    def pop_item(heap, mapping):
+        while heap:
+            value, key = heapq.heappop(heap)
+        # do i need to remove it from the mapping, too?
+            del mapping[key]
+            return value, key 
 
-     def pop_item(pq, entry_finder):
-         while pq:
-             value, key = heapq.heappop(pq)
-             if key is not REMOVED:
-                 del entry_finder[key]
-                 return value, key
+    def dijkstra(G,v):
+        heap = []
+        mapping = {} 
+        add_item(heap, mapping, v, 0)
+        final_dist = {}
 
-     def dijkstra(G,v):
-         pq = []                         # list of entries arranged in a heap
-         entry_finder = {}               # mapping of tasks to entries
-
-         add_item(pq, entry_finder, v, 0)
-
-         final_dist = {}
-         while len(entry_finder) and len(final_dist) < len(G):
-             w_dist, w = pop_item(pq, entry_finder)
-
-             # lock it down!
-             final_dist[w] = w_dist
-             for x in G[w]:
-                 if x not in final_dist:
-                     if x not in entry_finder:
-                         add_item(pq, entry_finder, x, final_dist[w] + G[w][x])
-                     elif final_dist[w] + G[w][x] < entry_finder[x][0]:
-                         add_item(pq, entry_finder, x, final_dist[w] + G[w][x])
-         return final_dist
+        while len(mapping) and len(final_dist) < len(G):
+            w_dist, w = pop_item(heap, mapping)
+            # lock it down!
+            final_dist[w] = w_dist
+            
+            for x in G[w]:
+                if x not in final_dist:
+                    if x not in mapping:
+                        add_item(heap, mapping, x, final_dist[w] + G[w][x])
+                    elif final_dist[w] + G[w][x] < mapping[x][0]:
+                        add_item(heap, mapping, x, final_dist[w] + G[w][x])
+        return final_dist
 
     return best_flights
 
@@ -282,3 +283,6 @@ def test():
 
     flights = find_best_flights(all_flights, 'Meekatharra', 'Wiluna')
     assert flights == [391, 459]
+
+
+find_best_flights(all_flights, 'Broome', 'Derby')
