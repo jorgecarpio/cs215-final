@@ -11,22 +11,29 @@
 #
 from IPython import embed
 
+# depth first search
 def process_graph(G):
     global mydict
+    
+    def whodat(G, node):
+        connected = set()
+        left_to_visit = []
+        visited = []
+        left_to_visit.append(node)
+
+        while left_to_visit:
+            current = left_to_visit.pop()
+            visited.append(current)
+            for neighbor in G[current]:
+                connected.add(neighbor)
+                if neighbor not in visited:
+                    left_to_visit.append(neighbor)
+
+        return connected
+
     mydict = {}
     for node in G:
-        checked = []
-        checked.append(node)
-        if node not in mydict:
-            mydict[node] = []
-        for neighbor in G[node]:
-            checked.append(neighbor)
-            mydict[node].append(neighbor) # now you have {1: [2]}
-            # check each neighbor in the list of node.  so, start with 2
-            # but skip 1 and skip 2
-            for adjacent in G[neighbor]:
-                if adjacent not in checked:
-                    mydict[node].append(adjacent)
+        mydict[node] = whodat(G, node)
     return mydict
 
     #return {1: [2], 2: [1], 3:[3, 4], 5: []}
