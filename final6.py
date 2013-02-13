@@ -21,6 +21,25 @@
 # a label is a dictionary mapping another node and the distance to
 # that node
 #
+
+# linear time algorithms like Dijkstra not good enough
+#sublabeling
+#for each vertex it computes labels
+# graph is undirected
+# label is a set of vertices which we call hubs and and distances to the hubs from the vertex
+# each vertex has a label and these labels must have the following property.
+# If you take 2 vertices, the set of hubs has to intersect and the intersection mark
+# contains a vertex on the shortest path between them.  and why it's important is that for this vertex
+# if you sum up the distnaces to the 2 hubs, you will get the shortest path distance.
+#  
+# so the easiest way to do it is for each vertex all other vertices are at hubs, and then the property
+# holds but then your queue at a time is order n, and what you really want is small labels,
+# and it turns out that some graphs have more labels,
+# and the reason why this works well in road networks is that we can compute labesl
+# for, say, the graph of western europe with about 18 million vertices.  We can compute labesl of size 
+# about 70.  It's fast.  If you sort these hubs by node id, we have 2 arrays and you just need to intersect
+# these2 arrays of size 70 which you can do like a merge sort that is a very good locality.  This time
+# become below a microsecond.  
 def create_labels(binarytreeG, root):
     labels = {}
     # your code here
@@ -81,3 +100,17 @@ def test():
     distances = get_distances(tree, labels)
     assert distances[1][2] == 1
     assert distances[1][4] == 2
+
+tree = {1: {2: 1, 3: 1},
+ 2: {1: 1, 4: 1, 5: 1},
+ 3: {1: 1, 6: 1, 7: 1},
+ 4: {2: 1, 8: 1, 9: 1},
+ 5: {2: 1, 10: 1, 11: 1},
+ 6: {3: 1, 12: 1, 13: 1},
+ 7: {3: 1},
+ 8: {4: 1},
+ 9: {4: 1},
+ 10: {5: 1},
+ 11: {5: 1},
+ 12: {6: 1},
+ 13: {6: 1}}
